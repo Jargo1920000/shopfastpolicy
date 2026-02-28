@@ -1,0 +1,63 @@
+name: Terraform - Destroy
+
+# Only runs when manually triggered from the GitHub Actions UI.
+# Never runs automatically. Requires you to type the environment name
+# as a confirmation before it will proceed.
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to destroy (dev, staging, prod)"
+        required: true
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+      confirm:
+        description: "Type the environment name again to confirm"
+        required: true
+
+jobs:
+  destroy:
+    name: Terraform Destroy (${{ inputs.environment }})
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Confirm environment name matches
+        run: |
+          if [ "${{ inputs.environment }}" != "${{ inputs.confirm }}" ]; then
+            echo "Confirmation does not match. Aborting."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            eu-west-2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.0
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="key=shopfast/${{ inputs.environment }}/terraform.tfstate" \
+            -backend-config="bucket=shopfast-tfstate" \
+            -backend-config="region=eu-west-2" \
+            -backend-config="dynamodb_table=shopfast-tfstate-lock" \
+            -backend-config="encrypt=true"
+
+      - name: Terraform Destroy
+        run: |
+          terraform destroy \
+            -var-file="envs/${{ inputs.environment }}/${{ inputs.environment }}.tfvars" \
+            -auto-approve
