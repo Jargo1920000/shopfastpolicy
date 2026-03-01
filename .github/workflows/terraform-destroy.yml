@@ -1,21 +1,10 @@
 name: Terraform - Destroy
 
-# Only runs when manually triggered from the GitHub Actions UI.
-<<<<<<< HEAD
-# Never triggers automatically.
-=======
-# Never runs automatically. Requires you to type the environment name
-# as a confirmation before it will proceed.
->>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
 on:
   workflow_dispatch:
     inputs:
       environment:
-<<<<<<< HEAD
         description: "Environment to destroy"
-=======
-        description: "Environment to destroy (dev, staging, prod)"
->>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
         required: true
         type: choice
         options:
@@ -36,16 +25,9 @@ jobs:
       - name: Confirm environment name matches
         run: |
           if [ "${{ inputs.environment }}" != "${{ inputs.confirm }}" ]; then
-<<<<<<< HEAD
-            echo "Confirmation '${{ inputs.confirm }}' does not match '${{ inputs.environment }}'. Aborting."
-            exit 1
-          fi
-          echo "Confirmation matched. Proceeding with destroy."
-=======
             echo "Confirmation does not match. Aborting."
             exit 1
           fi
->>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -75,4 +57,5 @@ jobs:
         run: |
           terraform destroy \
             -var-file="envs/${{ inputs.environment }}/${{ inputs.environment }}.tfvars" \
+            -var="db_password=${{ secrets.DB_PASSWORD }}" \
             -auto-approve
