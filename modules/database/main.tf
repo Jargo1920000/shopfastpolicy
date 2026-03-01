@@ -46,7 +46,7 @@ resource "aws_db_instance" "db" {
   engine_version    = "15"
   instance_class    = var.instance_class
   allocated_storage = 20
-  storage_encrypted = true
+  storage_encrypted = false
   multi_az          = var.multi_az
 
   username                    = "shopfast_admin"
