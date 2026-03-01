@@ -44,6 +44,33 @@ resource "aws_iam_role_policy_attachment" "codedeploy_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AWSCodeDeployFullAccess"
 }
 
+resource "aws_iam_role_policy_attachment" "codedeploy_elb" {
+  role       = aws_iam_role.pipeline.name
+  policy_arn = "arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess"
+}
+
+resource "aws_iam_role_policy" "ec2_autoscaling" {
+  name = "${var.env}-codedeploy-ec2-asg-policy"
+  role = aws_iam_role.pipeline.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "autoscaling:*",
+          "ec2:Describe*",
+          "ec2:Get*",
+          "tag:GetTags",
+          "tag:GetResources"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role_policy" "codestar_policy" {
   name = "${var.env}-codestar-connection-policy"
   role = aws_iam_role.pipeline.id
@@ -124,6 +151,14 @@ resource "aws_codedeploy_deployment_group" "group" {
   service_role_arn       = aws_iam_role.pipeline.arn
   deployment_config_name = "CodeDeployDefault.AllAtOnce"
 
+  # Wait for all IAM policies to propagate before CodeDeploy validates the load balancer.
+  depends_on = [
+    aws_iam_role_policy_attachment.codedeploy_policy,
+    aws_iam_role_policy_attachment.codedeploy_elb,
+    aws_iam_role_policy.ec2_autoscaling,
+    aws_iam_role_policy.codestar_policy,
+  ]
+
   deployment_style {
     deployment_option = "WITH_TRAFFIC_CONTROL"
     deployment_type   = "BLUE_GREEN"
@@ -158,32 +193,7 @@ resource "aws_codedeploy_deployment_group" "group" {
 
   tags = { Environment = var.env, ManagedBy = "terraform" }
 }
-resource "aws_iam_role_policy_attachment" "codedeploy_elb" {
-  role       = aws_iam_role.pipeline.name
-  policy_arn = "arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess"
-}
 
-resource "aws_iam_role_policy" "ec2_autoscaling" {
-  name = "${var.env}-codedeploy-ec2-asg-policy"
-  role = aws_iam_role.pipeline.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "autoscaling:*",
-          "ec2:Describe*",
-          "ec2:Get*",
-          "tag:GetTags",
-          "tag:GetResources"
-        ]
-        Resource = "*"
-      }
-    ]
-  })
-}
 # ------------------------------------------------------------
 # CodeStar Connection (GitHub v2)
 # ------------------------------------------------------------

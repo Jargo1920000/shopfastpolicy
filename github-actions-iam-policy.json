@@ -8,13 +8,9 @@
         "s3:GetObject",
         "s3:PutObject",
         "s3:DeleteObject",
-<<<<<<< HEAD
         "s3:ListBucket",
         "s3:GetBucketVersioning",
         "s3:GetEncryptionConfiguration"
-=======
-        "s3:ListBucket"
->>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
       ],
       "Resource": [
         "arn:aws:s3:::shopfast-tfstate",
@@ -27,12 +23,8 @@
       "Action": [
         "dynamodb:GetItem",
         "dynamodb:PutItem",
-<<<<<<< HEAD
         "dynamodb:DeleteItem",
         "dynamodb:DescribeTable"
-=======
-        "dynamodb:DeleteItem"
->>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
       ],
       "Resource": "arn:aws:dynamodb:eu-west-2:*:table/shopfast-tfstate-lock"
     },
@@ -43,35 +35,19 @@
       "Resource": "*"
     },
     {
-<<<<<<< HEAD
-=======
-      "Sid": "VPCFullAccess",
-      "Effect": "Allow",
-      "Action": [
-        "vpc:*"
-      ],
-      "Resource": "*"
-    },
-    {
->>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
       "Sid": "RDSFullAccess",
       "Effect": "Allow",
       "Action": "rds:*",
       "Resource": "*"
     },
     {
-<<<<<<< HEAD
       "Sid": "IAMFullAccess",
-=======
-      "Sid": "IAMAccess",
->>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
       "Effect": "Allow",
       "Action": [
         "iam:CreateRole",
         "iam:DeleteRole",
         "iam:GetRole",
         "iam:PassRole",
-<<<<<<< HEAD
         "iam:UpdateRole",
         "iam:AttachRolePolicy",
         "iam:DetachRolePolicy",
@@ -80,75 +56,45 @@
         "iam:GetRolePolicy",
         "iam:PutRolePolicy",
         "iam:DeleteRolePolicy",
-=======
-        "iam:AttachRolePolicy",
-        "iam:DetachRolePolicy",
-        "iam:ListAttachedRolePolicies",
->>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
         "iam:CreateInstanceProfile",
         "iam:DeleteInstanceProfile",
         "iam:GetInstanceProfile",
         "iam:AddRoleToInstanceProfile",
         "iam:RemoveRoleFromInstanceProfile",
         "iam:ListInstanceProfilesForRole",
-<<<<<<< HEAD
         "iam:TagRole",
         "iam:UntagRole",
-        "iam:ListRoleTags"
-=======
-        "iam:PutRolePolicy",
-        "iam:DeleteRolePolicy",
-        "iam:GetRolePolicy"
->>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
+        "iam:ListRoleTags",
+        "iam:CreateServiceLinkedRole"
       ],
       "Resource": "*"
     },
     {
-<<<<<<< HEAD
       "Sid": "ELBFullAccess",
-=======
-      "Sid": "ELBAccess",
->>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
       "Effect": "Allow",
       "Action": "elasticloadbalancing:*",
       "Resource": "*"
     },
     {
-<<<<<<< HEAD
       "Sid": "AutoScalingFullAccess",
-=======
-      "Sid": "AutoScalingAccess",
->>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
       "Effect": "Allow",
       "Action": "autoscaling:*",
       "Resource": "*"
     },
     {
-<<<<<<< HEAD
       "Sid": "S3FullAccess",
-=======
-      "Sid": "S3BucketAccess",
->>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
       "Effect": "Allow",
       "Action": "s3:*",
       "Resource": "*"
     },
     {
-<<<<<<< HEAD
       "Sid": "CloudFrontFullAccess",
-=======
-      "Sid": "CloudFrontAccess",
->>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
       "Effect": "Allow",
       "Action": "cloudfront:*",
       "Resource": "*"
     },
     {
-<<<<<<< HEAD
       "Sid": "CodePipelineFullAccess",
-=======
-      "Sid": "CodePipelineAccess",
->>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
       "Effect": "Allow",
       "Action": [
         "codepipeline:*",
@@ -159,17 +105,12 @@
       "Resource": "*"
     },
     {
-<<<<<<< HEAD
       "Sid": "SecretsManagerFullAccess",
-=======
-      "Sid": "SecretsManagerAccess",
->>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
       "Effect": "Allow",
       "Action": "secretsmanager:*",
       "Resource": "*"
     },
     {
-<<<<<<< HEAD
       "Sid": "SSMFullAccess",
       "Effect": "Allow",
       "Action": "ssm:*",
@@ -187,12 +128,6 @@
         "logs:TagLogGroup"
       ],
       "Resource": "*"
-=======
-      "Sid": "SSMAccess",
-      "Effect": "Allow",
-      "Action": "ssm:*",
-      "Resource": "*"
->>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
     }
   ]
 }
