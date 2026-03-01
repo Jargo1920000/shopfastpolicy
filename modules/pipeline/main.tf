@@ -160,36 +160,11 @@ resource "aws_codedeploy_deployment_group" "group" {
   ]
 
   deployment_style {
-    deployment_option = "WITH_TRAFFIC_CONTROL"
-    deployment_type   = "BLUE_GREEN"
+    deployment_option = "WITHOUT_TRAFFIC_CONTROL"
+    deployment_type   = "IN_PLACE"
   }
 
-  blue_green_deployment_config {
-    terminate_blue_instances_on_deployment_success {
-      action                           = "TERMINATE"
-      termination_wait_time_in_minutes = 5
-    }
-
-    deployment_ready_option {
-      action_on_timeout = "CONTINUE_DEPLOYMENT"
-    }
-  }
-
-  load_balancer_info {
-    target_group_pair_info {
-      prod_traffic_route {
-        listener_arns = [var.alb_listener_arn]
-      }
-
-      target_group {
-        name = split("/", var.blue_target_group_arn)[1]
-      }
-
-      target_group {
-        name = split("/", var.green_target_group_arn)[1]
-      }
-    }
-  }
+  autoscaling_groups = [var.blue_asg_name]
 
   tags = { Environment = var.env, ManagedBy = "terraform" }
 }

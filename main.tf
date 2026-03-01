@@ -69,4 +69,5 @@ module "pipeline" {
   blue_target_group_arn  = module.compute.blue_target_group_arn
   green_target_group_arn = module.compute.green_target_group_arn
   alb_listener_arn       = module.compute.alb_listener_arn
+  blue_asg_name          = module.compute.blue_asg_name
 }

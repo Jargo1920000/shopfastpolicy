@@ -32,3 +32,8 @@ output "green_target_group_arn" {
   description = "ARN of the green target group."
   value       = aws_lb_target_group.green.arn
 }
+
+output "blue_asg_name" {
+  description = "Name of the blue Auto Scaling Group."
+  value       = aws_autoscaling_group.blue.name
+}
