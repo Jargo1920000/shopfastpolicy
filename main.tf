@@ -56,6 +56,7 @@ module "database" {
   subnet_ids     = module.vpc.private_subnets
   instance_class = var.db_instance_class
   multi_az       = var.db_multi_az
+  db_password    = var.db_password
 }
 
 module "pipeline" {
