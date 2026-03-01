@@ -1,0 +1,234 @@
+name: Terraform - Production
+
+<<<<<<< HEAD
+=======
+# Only triggers on pushes to main
+>>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+
+  # -------------------------------------------------------
+<<<<<<< HEAD
+  # Job 1: Plan
+=======
+  # Job 1: Plan - always runs first
+>>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
+  # -------------------------------------------------------
+  plan:
+    name: Terraform Plan (prod)
+    runs-on: ubuntu-latest
+
+    permissions:
+<<<<<<< HEAD
+      contents:      read
+      pull-requests: write
+
+    outputs:
+      exitcode: ${{ steps.plan.outputs.exitcode }}
+=======
+      contents: read
+      pull-requests: write
+
+    outputs:
+      plan-exitcode: ${{ steps.plan.outputs.exitcode }}
+>>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            eu-west-2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.0
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="key=shopfast/prod/terraform.tfstate" \
+            -backend-config="bucket=shopfast-tfstate" \
+            -backend-config="region=eu-west-2" \
+            -backend-config="dynamodb_table=shopfast-tfstate-lock" \
+            -backend-config="encrypt=true"
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        id: plan
+        run: |
+<<<<<<< HEAD
+          set +e
+=======
+>>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
+          terraform plan \
+            -var-file="envs/prod/prod.tfvars" \
+            -out=tfplan \
+            -detailed-exitcode \
+            -no-color 2>&1 | tee plan_output.txt
+<<<<<<< HEAD
+          echo "exitcode=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+          set -e
+
+      - name: Upload Plan Artifact
+        if: steps.plan.outputs.exitcode == '2'
+=======
+        continue-on-error: true
+
+      # Save the plan file so the apply job can use it
+      - name: Upload Plan
+>>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: tfplan
+          retention-days: 1
+
+      - name: Post Plan to PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const plan = fs.readFileSync('plan_output.txt', 'utf8');
+            const truncated = plan.length > 60000
+              ? plan.substring(0, 60000) + '\n... (truncated)'
+              : plan;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+<<<<<<< HEAD
+              body: `## Terraform Plan \`prod\`\n\n> Review carefully before approving.\n\n\`\`\`\n${truncated}\n\`\`\``
+            });
+
+      - name: Check Plan Status
+        run: |
+          if [ "${{ steps.plan.outputs.exitcode }}" = "1" ]; then
+            echo "Terraform plan failed. Check the Plan step above for details."
+            exit 1
+          fi
+
+  # -------------------------------------------------------
+  # Job 2: Manual approval gate
+  # Set up the "production" environment in:
+  # GitHub repo > Settings > Environments > production > Required reviewers
+  # The workflow pauses here until a reviewer approves in the GitHub UI.
+=======
+              body: `## Terraform Plan - \`prod\`\n\n> Review carefully before approving the apply job.\n\n\`\`\`\n${truncated}\n\`\`\``
+            });
+
+      - name: Check Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+
+  # -------------------------------------------------------
+  # Job 2: Manual approval gate
+  # Requires a reviewer to approve in the GitHub UI before
+  # the apply job runs. Configure the "production" environment
+  # in GitHub Settings > Environments > production > Required reviewers.
+>>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
+  # -------------------------------------------------------
+  approve:
+    name: Awaiting Approval
+    needs: plan
+    runs-on: ubuntu-latest
+<<<<<<< HEAD
+    if: |
+      github.event_name == 'push' &&
+      (needs.plan.outputs.exitcode == '0' || needs.plan.outputs.exitcode == '2')
+
+    environment:
+      name: production
+=======
+    if: github.event_name == 'push'
+
+    environment:
+      name: production  # This is where the approval gate lives in GitHub
+>>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
+
+    steps:
+      - name: Approval received
+        run: echo "Approval granted. Proceeding to apply."
+
+  # -------------------------------------------------------
+  # Job 3: Apply - only runs after approval
+  # -------------------------------------------------------
+  apply:
+    name: Terraform Apply (prod)
+<<<<<<< HEAD
+    needs: [plan, approve]
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'push' &&
+      (needs.plan.outputs.exitcode == '0' || needs.plan.outputs.exitcode == '2')
+=======
+    needs: approve
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+>>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            eu-west-2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.0
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="key=shopfast/prod/terraform.tfstate" \
+            -backend-config="bucket=shopfast-tfstate" \
+            -backend-config="region=eu-west-2" \
+            -backend-config="dynamodb_table=shopfast-tfstate-lock" \
+            -backend-config="encrypt=true"
+
+<<<<<<< HEAD
+      # If plan had no changes (exitcode 0), skip download and apply directly
+      - name: Download Plan Artifact
+        if: needs.plan.outputs.exitcode == '2'
+=======
+      # Download the plan saved by the plan job
+      - name: Download Plan
+>>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan
+
+      - name: Terraform Apply
+<<<<<<< HEAD
+        run: |
+          if [ "${{ needs.plan.outputs.exitcode }}" = "2" ]; then
+            terraform apply -auto-approve tfplan
+          else
+            echo "No infrastructure changes. Nothing to apply."
+          fi
+=======
+        run: terraform apply -auto-approve tfplan
+>>>>>>> 8c3b6d7b06fb85079359997f017fd9a9c7232602
