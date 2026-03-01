@@ -86,3 +86,9 @@ variable "github_branch" {
   description = "GitHub branch to deploy from."
   type        = string
 }
+
+variable "db_password" {
+  description = "Master password for the RDS instance. Pass via TF_VAR_db_password env var - never commit to tfvars."
+  type        = string
+  sensitive   = true
+}

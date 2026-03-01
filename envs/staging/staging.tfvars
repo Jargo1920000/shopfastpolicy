@@ -18,6 +18,6 @@ db_instance_class = "db.t3.micro"
 db_multi_az       = false
 
 # Pipeline
-github_owner  = "yourgithub"
-github_repo   = "shopfast"
+github_owner  = "Jargo1920000"
+github_repo   = "shopfastpolicy"
 github_branch = "staging"

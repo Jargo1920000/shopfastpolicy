@@ -56,6 +56,7 @@ module "database" {
   subnet_ids     = module.vpc.private_subnets
   instance_class = var.db_instance_class
   multi_az       = var.db_multi_az
+  db_password    = var.db_password
 }
 
 module "pipeline" {
@@ -68,4 +69,5 @@ module "pipeline" {
   blue_target_group_arn  = module.compute.blue_target_group_arn
   green_target_group_arn = module.compute.green_target_group_arn
   alb_listener_arn       = module.compute.alb_listener_arn
+  blue_asg_name          = module.compute.blue_asg_name
 }

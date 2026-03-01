@@ -22,3 +22,9 @@ variable "multi_az" {
   description = "Enable Multi-AZ for RDS. Set to true for prod."
   type        = bool
 }
+
+variable "db_password" {
+  description = "Master password for the RDS instance."
+  type        = string
+  sensitive   = true
+}

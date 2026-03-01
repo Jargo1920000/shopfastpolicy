@@ -44,6 +44,33 @@ resource "aws_iam_role_policy_attachment" "codedeploy_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AWSCodeDeployFullAccess"
 }
 
+resource "aws_iam_role_policy_attachment" "codedeploy_elb" {
+  role       = aws_iam_role.pipeline.name
+  policy_arn = "arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess"
+}
+
+resource "aws_iam_role_policy" "ec2_autoscaling" {
+  name = "${var.env}-codedeploy-ec2-asg-policy"
+  role = aws_iam_role.pipeline.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "autoscaling:*",
+          "ec2:Describe*",
+          "ec2:Get*",
+          "tag:GetTags",
+          "tag:GetResources"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role_policy" "codestar_policy" {
   name = "${var.env}-codestar-connection-policy"
   role = aws_iam_role.pipeline.id
@@ -124,37 +151,20 @@ resource "aws_codedeploy_deployment_group" "group" {
   service_role_arn       = aws_iam_role.pipeline.arn
   deployment_config_name = "CodeDeployDefault.AllAtOnce"
 
+  # Wait for all IAM policies to propagate before CodeDeploy validates the load balancer.
+  depends_on = [
+    aws_iam_role_policy_attachment.codedeploy_policy,
+    aws_iam_role_policy_attachment.codedeploy_elb,
+    aws_iam_role_policy.ec2_autoscaling,
+    aws_iam_role_policy.codestar_policy,
+  ]
+
   deployment_style {
-    deployment_option = "WITH_TRAFFIC_CONTROL"
-    deployment_type   = "BLUE_GREEN"
+    deployment_option = "WITHOUT_TRAFFIC_CONTROL"
+    deployment_type   = "IN_PLACE"
   }
 
-  blue_green_deployment_config {
-    terminate_blue_instances_on_deployment_success {
-      action                           = "TERMINATE"
-      termination_wait_time_in_minutes = 5
-    }
-
-    deployment_ready_option {
-      action_on_timeout = "CONTINUE_DEPLOYMENT"
-    }
-  }
-
-  load_balancer_info {
-    target_group_pair_info {
-      prod_traffic_route {
-        listener_arns = [var.alb_listener_arn]
-      }
-
-      target_group {
-        name = split("/", var.blue_target_group_arn)[1]
-      }
-
-      target_group {
-        name = split("/", var.green_target_group_arn)[1]
-      }
-    }
-  }
+  autoscaling_groups = [var.blue_asg_name]
 
   tags = { Environment = var.env, ManagedBy = "terraform" }
 }

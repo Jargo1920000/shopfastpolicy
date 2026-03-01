@@ -18,6 +18,6 @@ db_instance_class = "db.t3.medium"
 db_multi_az       = true
 
 # Pipeline
-github_owner  = "yourgithub"
+github_owner  = "Jargo1920000"
 github_repo   = "shopfast"
 github_branch = "main"

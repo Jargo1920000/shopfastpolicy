@@ -32,3 +32,8 @@ variable "alb_listener_arn" {
   description = "ARN of the ALB HTTP listener used by CodeDeploy to shift traffic."
   type        = string
 }
+
+variable "blue_asg_name" {
+  description = "Name of the blue Auto Scaling Group for CodeDeploy."
+  type        = string
+}
